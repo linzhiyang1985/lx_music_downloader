@@ -48,9 +48,10 @@ result_title = ['ID', '歌名', '歌手', '来源', 'URL']
 query_name = ''
 result_gen = None
 result_cache = []
+current_page = []
 def list_result_page(page_num=0):
     global result_title
-    global query_name, result_gen, result_cache
+    global query_name, result_gen, result_cache, current_page
 
     PAGE_SIZE = 9
 
@@ -67,10 +68,10 @@ def list_result_page(page_num=0):
             if len(result_cache)//PAGE_SIZE >= page_num + 1:
                 break
     
-    page_content = result_cache[page_num * PAGE_SIZE: (page_num + 1) * PAGE_SIZE]
+    current_page = result_cache[page_num * PAGE_SIZE: (page_num + 1) * PAGE_SIZE]
     # render
     print(f'{result_title[0]}. {result_title[1]} - {result_title[2]} ({result_title[3]}): {result_title[4]}')
-    for i, row in enumerate(page_content):
+    for i, row in enumerate(current_page):
         print(f"{i+1}. {row['name']} - {row['singer']} ({row['source']}): {row['url']}")
 
 def query(name=''):
@@ -87,10 +88,10 @@ def clear():
 download_session = requests.Session()
 HEADERS = {"User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36"}
 def download(id):
-    global result_cache, download_session, HEADERS
+    global current_page, download_session, HEADERS
 
-    if id - 1 < len(result_cache):
-        song_info = result_cache[id - 1]
+    if id - 1 < len(current_page):
+        song_info = current_page[id - 1]
         url = song_info['url']
         name = song_info['name']
         try:
