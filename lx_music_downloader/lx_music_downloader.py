@@ -116,10 +116,13 @@ def export_to_html():
         f.write("</table></body></html>")
 
 def loop():
+    global current_page
+
     try:
         while True:
             cmd = input("输入指令(h查看帮助):")
             if cmd:
+                cmd = cmd.strip().lower()
                 if cmd.startswith('/'):
                     query(cmd[1:])
                     page_index = 0
@@ -132,12 +135,23 @@ def loop():
                     page_index -= 1
                     clear()
                     list_result_page(page_index)
-                elif re.match(r'^(d|D)[1-9]$', cmd):
+                elif re.match(r'^d[1-9]$', cmd):
                     download(int(cmd[1]))
-                elif cmd == 'x' or cmd == 'X':
+                elif cmd == 'da':
+                    for id, item in enumerate(current_page):
+                        if item['name']:
+                            # print(id, item)#debug
+                            download(id + 1)
+                elif re.match(r'^d([1-9],)*[1-9]$', cmd):
+                    for id in cmd[1:].split(','):
+                        id = int(id) # 1~9
+                        if 0 <= id - 1 < len(current_page):
+                            # print(id, current_page[id - 1])#debug
+                            download(id)
+                elif cmd == 'x':
                     export_to_html()
                     print("列表已导出为list.html")
-                elif cmd == 'h' or cmd == 'H':
+                elif cmd == 'h':
                     print("帮助信息:")
                     print("h: 显示帮助信息")
                     print("/name: 查询指定歌名(不指定名字列出所有，支持*模糊查询)")
@@ -146,7 +160,7 @@ def loop():
                     print("d[1-9]: 下载第1..9首歌曲")
                     print("x: 导出列表为HTML文件")
                     print("q: 退出程序")
-                elif cmd == 'q' or cmd == 'Q':
+                elif cmd == 'q':
                     print("再见，感谢使用！")
                     break
     except KeyboardInterrupt:
